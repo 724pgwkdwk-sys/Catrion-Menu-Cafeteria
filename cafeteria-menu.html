@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catrion — Daily Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --ink:#1E2A22;
+    --ink-soft:#54615A;
+    --panel:#EEF0E9;
+    --line:#DADED2;
+    --teal:#2F6F5E;
+    --teal-deep:#1F4F42;
+    --mustard:#E3A23A;
+    --tomato:#B44B2B;
+    --brand-blue:#5BB4E0;
+    --brand-blue-text:#0F3A52;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:48px;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 20px;}
+
+  header.top{
+    background:var(--brand-blue);
+    color:var(--brand-blue-text);
+    padding:26px 20px 22px;
+    text-align:center;
+  }
+  header.top .wrap{
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  header.top .logo{
+    height:auto;
+    width:min(70%,260px);
+    object-fit:contain;
+    margin-bottom:4px;
+  }
+  header.top h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px,7vw,36px);
+    margin:0 0 4px;
+    letter-spacing:.2px;
+    color:var(--brand-blue-text);
+  }
+  header.top p{
+    margin:0;
+    font-size:14.5px;
+    color:#1E5674;
+  }
+
+  nav.days{
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+  }
+  nav.days .scroller{
+    display:flex;
+    overflow-x:auto;
+    scrollbar-width:none;
+    max-width:560px;
+    margin:0 auto;
+    padding:0 12px;
+  }
+  nav.days .scroller::-webkit-scrollbar{display:none;}
+  nav.days button{
+    flex:0 0 auto;
+    appearance:none;
+    background:none;
+    border:none;
+    font-family:'Work Sans', sans-serif;
+    font-size:15px;
+    font-weight:600;
+    color:var(--ink-soft);
+    padding:16px 14px 13px;
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    position:relative;
+    white-space:nowrap;
+  }
+  nav.days button .full{display:none;}
+  nav.days button.active{
+    color:var(--teal-deep);
+    border-bottom-color:var(--mustard);
+  }
+  nav.days button .today-dot{
+    display:none;
+    width:6px;height:6px;border-radius:50%;
+    background:var(--tomato);
+    position:absolute;top:9px;right:6px;
+  }
+  nav.days button.is-today .today-dot{display:inline-block;}
+
+  main{padding-top:22px;}
+
+  .day-label{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:4px;
+  }
+  .day-label h2{
+    font-family:'Fraunces', serif;
+    font-size:26px;
+    font-weight:600;
+    margin:0;
+  }
+  .day-label span{
+    font-size:13px;
+    color:var(--tomato);
+    font-weight:600;
+  }
+  section.day-content{display:none;}
+  section.day-content.active{display:block;}
+
+  .category{margin-top:26px;}
+  .category h3{
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--teal);
+    margin:0 0 10px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  ul.items{list-style:none;margin:0;padding:0;}
+  ul.items li{
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    font-size:15.5px;
+  }
+  ul.items li:last-child{border-bottom:none;}
+  ul.items li .name{color:var(--ink);}
+  ul.items li .price{
+    color:var(--ink-soft);
+    font-weight:600;
+    white-space:nowrap;
+  }
+
+  .combo{
+    margin-top:26px;
+    background:var(--panel);
+    padding:16px 18px;
+    border-radius:4px;
+  }
+  .combo h3{
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--teal-deep);
+    margin:0 0 6px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  .combo p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);}
+  .combo .combo-price{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    color:var(--tomato);
+    margin-top:8px;
+  }
+
+  .everyday{
+    margin-top:44px;
+    padding-top:28px;
+    border-top:1px solid var(--line);
+  }
+  .everyday > .wrap-title{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  .everyday > .sub{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0 0 18px;
+  }
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 24px;
+  }
+  @media (max-width:420px){
+    .grid2{grid-template-columns:1fr;}
+  }
+
+  footer{
+    text-align:center;
+    margin-top:40px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+  footer .vat{color:var(--mustard);font-weight:600;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <img class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAYAAADeCAYAAACueAKIAABWyElEQVR4nO3dd5hkRfX/8fdsDqRdYEGShCJnBBMGzGDALKJoIYqIFiogQQEVUVEEBC1UMFFi+iL+zAoGREFBRaLkIue0LCzLsnF+f9QdGGZndif0rbrd/Xk9zzywE/qc3ZnpvvdU1Tk9vb29iIiIiIiIiEh3Glc6AREREREREREpR4UBERERERERkS6mwoCIiIiIiIhIF1NhQERERERERKSLqTAgIiIiIiIi0sVUGBARERERERHpYioMiIiIiIiIiHSxCaUTEBERERGRkbE+rgfsCGwMrAqsBKwF3AEsAh4DLgWuCc48UipPEWkPPb29vaVzEBERERGRFbA+zgLeBTwP2IhUCFgNmAxMJC36LQCWVv+9D3gIuBk4F/hjcGZ29sRFpPFUGBARERERaTDr46rAEcBuwFakHQIjdQ+pQPAr4GvBmUUtS1BE2p4KAyIiIiIiDWV9fD+wL2mXwMQWPORc4ELgm8GZ37bg8USkA6gwICIiIiLSMNbHGcAxwD7AmjWEuA04LThzYg2PLSJtRoUBEREREZEGsT6uD3ybdHRgco2h5gLfA45Vg0KR7qbCgIiIiIhIQ1gf1wJ+SioK5LAU+A7w8eDM/EwxRaRhxpVOQEREREREnjo+8HnyFQUg3Q9Y4MiMMUWkYVQYEBEREREpzPo4HngzqadAbpMBZ33cu0BsEWkAFQZERERERMrbjtRscEqh+DOBj1kftygUX0QKUmFARERERKQg6+NM4ABgw8Kp7ATsVzgHESlAhQERERERkbK2A5qwjX8i8BrtGhDpPioMiIiIiIgUYn1cBXg1sErpXCqbk5oRikgXUWFARERERKScDYC9SifRz2TgRdXxBhHpEioMiIiIiIiUszmwcekkBng28KLSSYhIPioMiIiIiIgUYH1cCdi5dB6DWAPYoXQSIpKPCgMiIiIiImWsSvN2CwBMBdSAUKSLqDAgIiIiIlLGqoApncQQ1iydgIjko8KAiIiIiEgZ04C1SycxhOnWx9VKJyEieagwICIiIiJSRg8wvnQSQ5hAOlIgIl1AhQERERERkTJ6SiewArpXEOkS+mUXERERESljCbCodBJDWAA8XDoJEclDhQERERERkTLmAreXTmII84MzT5ZOQkTyUGFARERERKSMR4DrSycxhLtKJyAi+UwonYCIiIiISKtYHzcDtgXWByYBvdWHekjb4+8Crg3OXFcmw2d4BLihdBKDmANcXjqJPtbH7YEtgY155tGLccDjpOLK9cGZuwukJ9IRenp7e1f8WSIiIiIiDWV93Ap4A/AcYANgHWA1lu34v4R0M34/aQv/lcAfgjP/zZbsANbH1wK/KxV/CDcB7w3OXFIqAevjK4CXADsC6wJrAWuQvod9+oo9D5C+p7cBFwO/Cs7ckzNfkXanwsAYWR+nk2bQrugfcmlwZnaGlERERES6gvVxB+B9wAuBbYApI3yIRcC1wCXAD4Iz/2xpgsNQ7XD4EbBz7tjLcT7whuDME7kDWx/fBLyTVBDYhJGPc5wDXE36O4TgzK2tzE+kU6kwsALWx7VJ25ZWIW1LA9iUNNe1B1iTZ25TW55HSdudeoF7SJXNuUCs/v+e4MyjrcxfREREpNNUCzOfAN4E7NCih70G+AVwWnDmvhY95gpZHycDHwZOzhVzBR4DPhuc+WrOoNbHjYAjgd1Juz7GagnwL1Jx4IwWPJ5IR1NhoB/r4zrA9qTq5Caks2lrAquTKtDrVJ86tUUhHydtf3qI9CT8KKlgcCOpWBCBK4IzS4Z8BBEREZEuYn3cDvgS8HJg8jC+5B7SddzMYXzuYuA84KTgzF9HneQIVWfozwY2yxVzOS4B9gzOPJgroPXxdcBRwAuG+SX3AtNJC3crMhv4KfCl4Mydo8tQpPN1dWHA+vgs0jalFwAbkgoB65HOL61aLjMWAg9Wb3cCtwL/Bf4ZnIkF85IWsD6OJ61uzASW1hyuh7RN8qZOPmtnfZxKukDUWKXONg54LDjzr1Y+qPVxIulifD3STYEMrYe0CvcwcAcwEXg8ODO/aFYNZX0cR7q22Jq0EFC3ccB84IacN3U5WR+fA5xO6iUwlL+Sbm4jaRHmflLD7ZWBWcBWpG37uy7nMa4hrZqf04K0V8j6OAX4OHB8jnjL8QTw6eDMSbkCWh8t8GnSDt3BLAJ+T/qe3k3abfsIqSi0GjCD1JjwpSx/98ivSX+3K1uRd9NYH9cCnkv6HtZpEhCDMzfVHKexqh1Lm5OeTxat4NNbYQJpAfmG4MwjdQbpKtU5rl1JZ9E2Jb1gD/VEVMokUpOVdXn6Ce4B4Gbr413ApcC5wZmryqQnYzQD+C7D603RCkuBfwLvzxCrlFnA18nz5Czl9JA6T+/Z4sddGdiXtCW57mJdJ+gF5pFW4cYDC6yPD5BufG+t3n81cF9w5pZiWTbDROBVwCfJU3TqAe4DPg/8MUO8rKqiwLdJizoDLQJ+SLqB/B9wS3Bm4RCPsxLwbMAArwQ+xLLXxFsDX7E+9gZnft6av8HQgjNPWh9/BuxBarhXyt+BH+QIVC2UvBc4jnTNO9CjpNf2S4D/BWduX85jrUQq8O4EvBZ48yCfticwzfp4WHDmirFl30g7A18jLTDWaTxwtfXxiODMjTXHaqpZwMdI95Q5dnaPIxU6P0s6HlOLrigMVEcEdiftDNiWdExgjaJJjdys6g1S1929rI83AX8DztPFV3uozhG+lXRkJaeZ1scNgzO3ZY6byyRgo9JJSBZ13LhP4OmbBBmbhaSiwT3AY9bH+0mrtZcCVwGXBWe6aVdGXy+inAsQMym767EW1seNGboocAnwZeCi4MxDK3qs4MzjpB0B11gf/wpcQCqe7zHgUzcEPm99fDA48/fRZz9stwAnkBaFhrNFvtVuBY7IuNvkZQxdFDgHOAO4IDizwqJ/9T29DLjM+vhH4FzgMJZ9Xn8lcJz18aAOvCZajfQzm8PGpOf5j2SK1zSTefroeS7jgZXqDNDRhQHr426kiuEOpG1j7VYMGMoUUkV0J1LBYx/r4+XAL4IzfymamazIRNLKUW6rkZo0uQKxc+jeM1Hdp47t2L3Uv8LSLSZVbzMGvP/tpNnxd1gfryXdiF1YXcx3utyFkCfJs4KVjfVxdeAkBi8K/B/wheDM1aN57ODMY8DPrY9XAAeRVgH72wI42vq4X3DmrtHEGEEuvdbH84FPkRoRTqoz3gB3Awfk2o1qfdwC+CrLFgWeIO14OWu0/97BmTuAM6yP15GufQbuMtudVDTotJvanL/3PcC7rI//Cs5k2WHSMCWuGxZQ867GcXU+eAnWx3HWx/2sjz8Avgl8lLQlq1OKAgOtSjoW8RHgG9bHH1sf31g4JxmE9XECsBtpZTK3ScDrrY8lViBERGYC2wGvBw4nbQ8+x/p4QjWrXGRQ1sdJwNtIR30G+hFw+GiLAv0FZ24Gjga+MsiHX0qmwnrVr+M7wLHku/G4G3h/cOZPOYJZH2eQrs+3GfChuaSiyEmtKMIEZy4EDiX1FuhvAvAe6+O+Y43R5VYDXHVMWzpAxxQG+goCpDEzXwbeQ6rydpPNgL2BU6yP51gfP1A6IXmGyaQXqFJWB95RML6ISJ9NgNeQVu1Osz7+yPp4YLUyLNLflsARA963FPglcFS1OtwS1Q6WzwN+wIcmAW+zPj63VbFWkMcC0lnxw6i/kdw9wAeCM+fVHKe/5wLvGvC++cCpwLeG6g0xGlXT7iOA8wd8aGVScWA4kypkaNuTijzSAdq+MDBIQWBPOnd3wHBtSDrH/mXr41nWxzcUzqfrVZ2ptwZeXDCNacAHC8YXERnM5qSbhOOBH1sfD9HFusBTnb/3ZNkeMjeQdgoM2YxutKqjBV8E/jDgQ88m43G8qkjxDVJj1ItqCnMu8O7gzLk1Pf4yrI+zSH+ngX0wfg98tSqKtFRw5nrgC8BtAz60C/DOVsfrMpOAd2sxsjO0dWGguuFVQWBoM4F9gFOtj9/IVemWQU0B9ic1DillHLClCkUi0lCrAq8mrdj+sCr6S3fbgPTa2d8jwCl1jkoLztxLWr2e1+/dE4AXWh8H63NQVx6LgzM/I01N+AKwwsaKw3Q9qZeCC85c0KLHHK7tSU20+7sN+HxwZnaNcS8ifU/7Wxl4azXmT0ZvNeAT1sfnlU5ExqYtCwPWx12sj2eRfsFVEFixjYADgdOtj0dXM98lr7Voxjb+aXRuA0IR6QxTSd3hT7A+/sD6+MLSCUkx25DGSvd3Oam3QN0uIp317289Ur+DrIIz15DGlL2T1MV/tEWRP5G21e8bnPla1Vchm6rP0auA6f3ePR/4ed3jA6vjCb8G/jPgQ1uSRs7J2GwGfLSaviVtqq0KA9bHidbHo0jjavZB48lGagfSC8uPrY8vK5tK96ieJN9BmdFDA40Dtrc+blU6ERGRFVid1C/odOvjJ3XB2V2q4yS7DXj3bOCc4My8Zb+itaoYA5vWTQZ2ro4HZlXtHvgLqSmhJW3HPx74HWkHwKPAw9XbbODB6v2/BI4B9gI+Epw5IThT2xz0FViXZb+ntwM/zBT/TuDHA963JmmEoYxND/A60thPaVNtM66wGj34YeCN5B3f0mnGkzr7bmp9/F5w5uTC+XSDVUkjkJpiJqlRzIdKJyIiMgzbkG6GtrI+ntCKDvTSFtYiTZXq707g7Iw53A78C+i/RXo9Ul+M6zLm8ZTgzBLgYuDiamLDesAs0nbuvnF1PaQGjY8D99bRi2GU1iT1W+rvZiDL73RwZpH18T/AfcDa1bsnAFtYH6fnKDh1uFWBg6yP/wnODNyZIW2gLQoD1S6Bd5O2+0hrbA0cW52V+0LVmEVazPo4kVSJHjint6SJwB7Wx42DM7eUTkZEZBgmUu0UrIoDA1dypfPMIG1P7u/W4MzDGXO4l7T9vn9hYAZpB2aRwkB/1fb4W6q3drAB6UhjnwXAlVWxI5c7SMWe/qO9VwGeBcSMeXSqzYFPWh8PDM7cXzoZGZlGHyWwPq5vffwR8GlUFKjDSqQLrdOtj68tnUyHmkwaN9Q0s0jFNhGRdrIrcJL18b2lE5HaTeWZO0SXAGOebT8SwZkngCsHvHtldJR1xKrdDc8e8O7ZZNot0M+jLFtIWZm080LGrgfYnXTURdpMYwsD1sfXA2eRRhjp6EC9XgKcYn3UHNIWsj6OB3YmrSw0zWTSTOa22DUkItKPAb5S7SaUzrV4wJ9nA1cUyGPOgD9P4Jmr3jI8E0jFnv4eIx0PyWkeyxYGJqLvaStNBT5ofRx4FEgarpGFAevjx0kTB15aOJVusinweevjF0on0kEm09wJAD3Axiw7MkhEpB3MAj5lffxU6USk9arV5W0GvPtJoMTW5LmkokSfXtL5fRmZwf7dHiP1ccimOrZwz4B363vaehsDh1kfZ5VORIavcYUB6+PJwOdIP1CS18qkC62Bc15ldDYCmnxEYypwSOkkRERGaRpwlPVRz2OdZynpprG/UjdvE9DO1bqMo8y/bePufzrUy4H9Sychw9eYXwzr4wzr4w+Bg0k3qFLOR62P3vq4QelE2lU1Vus9LLttrknGA9tZH5+3ws8UEWmmacDR1se9SicirROcWcyy/QRWBjYpkM4UUk+mPj2k108ZmcH+3bKf7a+aQg/sddBTvUlrTQMOtD7uUToRGZ5GFAaqWbU/QM3QmuQjwDetj+uXTqRNrQPsVzqJYZgGHFo6CRGRMZgBfMH6+PLSiUhLDbxGXRXYokAeaw/480JSAzsZmcH+3VZj2Zv0uk0nTUfobwnL9rSQ1lgXOFT3E+2heGGgKgqcCby+cCqyrNeSigNrlE6knVS7BV5LmtfbdBOAF2t3iIi0uU2Az+ris6PMA57o9+dxZJ4GYH1cmWUbCD8G3Jwzj05Q7QK5e8C7ZwA7Zk5lJmmkXn9zydzroMvsSnN7bkk/RQsD1scZwPdRA7Qmex3w5dJJtJmJpCMx7WIm6jUgIu3vBaTxxtIZZgPXDnjf+pmLP+uy7MLVHODSjDl0kjt55pSHicDWVbPJXGYBA49QPgzcljGHbjMF2Nf6+KrSicjyFSsMVEWBM4E9S+Ugw7av9fGrpZNoB9X4v10pcw5ytCYBb6xWRkRE2tUEYG/r4z6lE5GWuBf464D3bQTk/P5uwLLHF24D7siYQye5F7hqwPs2Ydkb9VpYH6cALyIdYeizELgiOLMwRw5drG+STDtdH3edIoUB6+PqqCjQTsYBH7c+nlQ6kTYwBTi2hsddCJwPfBtYUMPjrwG8vYbHFRHJaTpwiPUx97llabHgzFzgwgHvng68vjqGWqsqxvsGvHsecElwprfu+B3qLuAfA963Pvl6jG0IfHjA+x4A/pIpfrfbFTiodBIytFI7Br6OigLt6GPWxwNLJ9FU1sceYCvqqXwvBH5F2iZ7bw2PPw34YA2PKyKS29bAR0snIS1xHcuuMG9PapBct92ANw94313ADzPE7kjBmfmkXSCz+717EqnYs1udsa2P00nTogb2qbgS+GedseUpE4H3WB/fWToRGVzWwoD1scf6+BVg75xxa/Qg8G/g76TV3K8Bp/V7+wbpBeQiUoX0Hpady9tOxgOftz7uXjqRhpoCvL+mx+5r2jOHtGLRauNI5/xeV8Nji4jkNAnY0/q4ZelEZMzuBL434H3TgfdbH3etK6j1cWNSIX5yv3cvBP4cnFGTurG5BPjpgPetCxxTcyPkl7DsAsiDwA+DM+18bd5uZpIWGnWkoIFy7xg4kPYdjXYL8FvSzf+BpOLGe4ADSNuSHPBJ4Mh+b0eQ/r4HVm+WdDbOAZ8HfgxcDSzN+PcYq5nAl6yPWefOtolZwDtqeuxFpJ/BKdT3ezsVbfESkc6wActuGZY2E5xZAPyBZZv9bUC6Fml5R3vr4yzgFNLOhP5i9X4Zg+qIyM95ZhNCSGf/P219XKnVMa2Pu5CuuwdO2bqUdG0vee2IphQ00oRcgaotQp8GenLFbIF/krY83QTcSmo2c19w5skRPMbjpPNLkIoAT7E+rkWa37ohsB3p7M1uY8o4j+2Br1sf36JzdknV0GZfntnQppV6gfmkosDEmmKMB3awPm4enLmhphh1yfZcJsXNKp2AtIVJwGusj1sEZ64vnYyMyc3AiTxzlbmHdCN5ovXx0ODMFa0IVI1n/ibLTst6AvhucCa2Io7wH+C7PHOxcBKp18Bc6+OnqmMHY2Z9fC7pe7rTgA89AJwanHm8FXFkRCYD77U+Xh6c+UHpZORpWS6mrY9rklba18oRb4yuJB0LuAS4Ljhz9Qo+f9SCM/cD95OOI5xdbXvcjnTj/Sagydsg3wQcBpxQOI+mWJV6zzwuJZ3JW0KatWtqijMT+Bjtt9J2L+2Xc58ZpH/z0dzw3gN8jsKjZzN7uHQCLfI4cDbNH3s2jvS8sB5p59J0Upf2lar/Nrko92zS84L6DbSx4MwS6+PvSNeRA7+XLyctVHwhOHPuWOJYH58PfAYY7Ljkb0jjtaUFgjNzrY+nAtsAr+n3oSmk39nVrI8nj/Ua3Pq4N/AJli0KLAROC86cN5bHlzGZCRxpfbwmOPPf0slIUvsLetWQ7RRg27pjjdF5pO1E/wKuqravZRWcuQ64zvp4NulFaEfS/Nw9cucyTIdaHy8OzgzsGtxVrI8TgZcBa9YYZhHpLNxKpN0rdZkIvM76uGFw5rYa47RUcOZR0opA26m2Tb6H0RUGHgnOnN7ilCSPecAvgjNtsY3V+rgKqTA5mdRFfAqpWLAB8BzghSzb1Ku0ScDLrI/rBGfuKZ2MjF5w5nHr4xdJOywHNq9+Eak4cCbw4+DMiF4jq6MDHwLewrLHByAt3nw2OPPISPOWoQVn7rQ+Hk3qL7BNvw9NIu3A3ML6+D3grBHu1MX6uAPp+O5ewLMG+ZQfkvqASVlbAAdZH/cPziwqnYzkqfQfCrwrQ5zROg84B7igKVvEqu35FwMXWx/PIx0veBuDV7FLmgV82fr4quBMHQ3x2sVE0u6JWmMEZ3qtj+NIW/7rNIu0ne8LNceRZAaj/55uUF0MzwEuAy4OztzUorykXuOAlUsnMVz9mnPN4+mO4v+Cp26stiRd3L+2emuKZwGvAkLpRGRsgjP3Wx8Prv44sDhgSLunXml9PJ805vDfwZknBnss6+NkYBfSjoNdgVcy+M6rK4CDdBylNv8lreifRJom0t/zSc8rr7U+XgL8KThz2VAPVB0D2ZW0A2EXYOchPvUs4HPBmYfGmLuMXQ/pd/ki4DuFcxFqLgxYH7cGjqozxhhcRlph/FuTL6SDMzcDN1sf/07aPfAe0k6CpngBcDSp8WLXsT5OIHW6HbhNrZWWANdW/78QqPsCZTLwduvj19Wpt/FWJq2KADxE2nF0FXB2cObv5dKSbhKceYB0Xvdv1sdzSUck3gy8sWhiyWqkC08VBjpAcOYW6+MhpON1bxrw4XGkhZTdSK+ZN1of7yEd2byHVMRfA1iHtMNvc565Uj3Q+cCngjP/bt3fQPqrFsLOsz4uJTUHfO6AT1mV9H3eE3ib9fFG0nGyB0lHCCeSvpfrkXYebE06QjSUrwMnabJEo8wADrY+XtqqXiEyerUVBqqVza9TXzO20VpMOtrwf8GZpp/tfEpVvPiq9fEfpM73HyFt5WyCD1kffxecuah0IgVMJk2cqNNS0gsgpJ/furfE9pBWX3YnXeBLe1gDeHH19jLr4x+Bb7VhI0lpY/2K2X8FLiCdCS95xGA8sI2OE3SO4MzN1sePkvrtHMTgK/1bVW99HiVd804fRogFwBmk589rV/TJMnbBmT9ZHx8CDiFN7xpoHGkHQP9dACP5nt4JfAX4UXBm9oo+WbLbEvik9dEFZx4snUw3q7Nh1cGkc9dNchlpde2odioK9FdVro8A3keamtAEq5GOFNS9xb2Jng28ouYYi0mjCiHtHrh3OZ/bKn0NgKQ9bQV8HPim9fHNhXORLhScuSM4cwrp7PbvC6czE3h14RykhYIzd5J2Kr4P+PUwvmRVhncD+SdgP+AYFQXyCs5cTrp3+Bhw+TC+ZDjf00WkowP7Bme+rqJAY/WQdkW/t3Qi3a7lhQHrY4/1cWPS9vImCcABwZkfB2cWlk5mLIIzS4IzPyXduDWl8dgLgANKJ5FTdUZxH4Z3sTEWC0nzkwnOLKXe5oN9xgM7VrN/pX29DDjZ+jjYCoxI7YIzfyQVqc4pmMYM0lly6SDBmfnVqLOPAvuTfsZGc/xtPqn59IHAR6rrxEdbl6kMV3DmoeDM14APkgo/F4/yoWaTzqy/CzgkOHN+i1KU+kwj7UB+QelEulnLCwPVeaETaM4RgsWkJ5fD2nWXwFCCM1eSmrY05Xz/odbHDUsnkdE6wPszxFlM2gbXZz4wN0PcqaSfL2lvGwJfsj6+ZkWfKFKH6ijcocDPC6UwHtiqmgAiHSY4c3tw5jukleb3kHZV/pQ0fvpBUnPWR6q3OaR+GFcAPwOOITXbPSg4860m95zqJsGZS4MzXyLtOHoPqf/AL4FrSKNeH+n39ijpiOWFwPdIzaDfC3wiOHOOmgy2FQMcXjWSlAJa2mOgGk34UuCtrXzcMZgDuODMj0onUpfgzOOki/7ZwKdJzVdK6CGdIz2cLtiCbn2cRDqDP5oRcyO1iNS5t89S0oth3R3NJwIvtT6uF5y5q+ZYUq91geOsjzeOdJSXSCsEZ+6wPn4G2Iwy44tXJ43G6qgFAnla1UPi18CvrY9rk0ZprkG61u2tPq2H9Jr6MHCX+k40W3DmKuAqAOvjBqQmg2uRFkz69ABPkooDdwVn5mROU1rrVaTjPCeUTqQbtbr54GTSyJEmeAR4f3DmF6UTySE4c4b18X7gNMoWB95mffxaF4z2mUQ6C5fDEwOmAywC/ke66KnbaqRmQIdkiCX12hk4ki478iONch1wHPAjUuExp+mkDvQqDHSB4Mx9wH2l85DWCc7cAdxROg+p3XTAWR8vC878uXQy3aZlRwmqKQSvo96xbcPVVUWBPsGZX5GmFdxdMI3VgWMLxq9d1WTxBcCmGcIN1lNgAVUFPYPJwJutj3X3UZD69QBvsT7W3SxTZFBVj5RzKdNvYBp5iqkiIp1gPumYRgnrA4dZH0stdHatVvYYmEQzbgi7sijQpwHFgXHAHtbHJhSI6jIV+GymWAtYdvrEQiDnOchZwL4Z40l9ZpKeH0RKeZw0Cu7JzHGnADtmjiki0q4uJj1Xl/JiuuBoctO0pDDQb7fA1q14vDF4CNi/W4sCfarigOOZDetymk5q6NNxqj4aWwAvzBTySeA/A963mGf2HKjbVOADGeNJfcaRpk08u3Qi0p2qBsXXAhdkDj2edD5ZRERWLAKnkGcS1mCmAvtZHzVRJqNW7RiYRr4V1KH0AkcHZ0p1PW6U4MwvgaMKhR8HvN76uFWh+HWaQpqbnMsiUvfkp1QX1vcBT2TKoQfYWF3tO8YMNNNdynoEOLtA3EnWx9UKxBURaTeTq+acpxbMYW3gU9bHjQrm0FXG3Hyw2i3wHFJTn5K+Cny7cA5N8xPSmco9eWYH1xwWAs8jrQx1kjWBvTPGmw8MNhFgKXAjsEOmPKaTRkGdlyme1GcysHnpJKR7BWcWWR+vIhU+czYhnEia5jInY0wRkXa0RbW78EzStv5SE+deTNoFfWih+F2lFVMJeoFPtuBxxuIPwHFVYyOpBGcWWx+/BPweWFIghdxnSGtlfZxMmo07I1PIJcDV1Q6BgZ4knf/aIVMu44HnWB93CM5ckSmm1GMSzWgSK93tUdIW1c0yxpxA/WNeRUQ6wXbAJ4IzB1kfPw1sTJk+LZMAa328ODhTonFtVxlTYaDaLbA9UHKL8f3AwZpbOrjgzBLg8tJ5dIhVgIMyxpsP/G2Ijz0J/Bs4MF86zCRVbdVvoL2NQ2etpbz5pDOsOQsD00gXt522k01EpNWmAu+xPv43OHOm9fEU4DvkHzULaeLZwVUupXoedIWx9hiYQPlu5Z8NztxQOAfpcNbHSaQGm7Myhl0A/HWIjy0GLsuYC6Tf95dbHzXyq/0tKp2AdL0F5J+eMwFYKXNMEZF2tSppbOD2wC+BHxbM5TloqlLtxloYmATs1YpERukPlB2lId1jInBI5piPA1cP9oHqeME9wL1ZM4JnkbfHgoh0pvnA7Zlj9pL6s4iIyPBsSdqZ/RhwPAMaYmc0mXSk4F2F4neFURcGrI/jgZcCa7UunRGZAxyivgJSN+vjBGBXYNuMYZcA1wRnFi7ncxaTf+TXZOAd1ked0xWRsVgEzC6dhIiILFcPsKf1cd/gzE3AV4C5hXJZgzSlYPtC8TveWHYMjAc+3KpERuG04Mz1BeNL95hI3rP8kEYR/mEFnzMf+HuGXPrrIZ0J1rg7ERmLKcD6pZMQEZEVmgG4amzgb4AfFMxlK+Bj1scSvQ463lgKAzOAl7cqkRHoBW4CTi4QW7pM1WBzK+CVmUMvAP7fCj5nIXBRhlwGmkrZoqCItL8p5G+C2UNrpjGJiHSbrYEDgjNzSfdg/yqURw/wRuDdheJ3tFEVBqpjBC8mvbCXcGpwRlsQJYdJwDvJ37DqnuDMPcv7hH59Bm7Kk9JTnhpdmDmuiHSOKcC6mWM+SXrOFBGRkZkCvMH6uFVw5hbgy8BDhXKZCRxqfcx5xLcrjHbHwATg7a1MZJj6dguEArGlO61N/qrkfOC3w/zchcDvasxlKFOBTxSIKyKdYSqwQ+aY84HbMscUEekUBti/+v8/AmcVzGVr4JPWxzUK5tBxRlsYmAK8qpWJDNMS4DvBmccLxJYuU51feg2pE39O8xn++a3h9CKowyTS6MJ1CsQWkfa3AWnVJ7feAjFFRDrBJOBV1setgzPzAA9cWCiXHmBPYJ9C8TvSiAsD1ZnrbUk9BnKbDZxZIK50pxnAwQXi3h2cuWE4n1hN5bgWuL/elAY1E/h4gbgi0saqqSYvLRB6PpqEICIyFpsC+wFURwo+T/7R2X2mAwdaH3cpFL/jjGbHwATgFa1OZBgWA38MzjxYILZ0maqPxi7A5plDzyd1fB2JRymza2Ay8Fbr47QCsUWkfa0G7F0g7mNV4ywRERmdSaQ+U6tVf74Q+Ea5dNgMONL6uHrBHDrGaLrzjgde1upEhqGHsj940l0mA4cViLuAkZ/ZeoI0wWDflmezYrNIPRi+XSC2iLQZ6+ME4EXAxplDLwHuzBxThmB93JR0nGRt0o1G3xGPHlKTyFuBW4IzD5TJULqN9fHZpMWgWaQx1X0/k+OAeaTnj3uCM7cVSbBZtgD2AH4SnJlvffwuaVJdiftDSCO09wVOKhS/Y4ymMDAF2LnViazAUuBK4JLMcaULWR97SBXI3Ftde4GbgjPXj+SLgjNLrI+XAQ8Ca9aS2dCmAwegwoCIDM86wCcLxJ0H/K9AXKlU2313BnYiNTFbh/Sa1f8mrIdUIL8TuNP6eCNwGXB+cOa+7ElLR7M+GuAlwPbAlsBGwBqk+6P+hYEnSNvl77c+3gBcDvwlOHN79qSbYS1gd+AnAMGZe62PXyb9G65dIJ+VgIOsj5cGZ/5WIH7HGFFhoLph2ph0M5DTIuCn1Xg2kbpNAVyBuPOBs0f5tXNIuwYOaFk2w9MDbGp9fEVw5i+ZY4tIG7E+TgYOIfUpym0uqR+LZFYVBN5NGnO9LakQsDwrAavz9NSKh4GLrY9/An4ZnLmjplSlS1gftwbeCuwGPJcV39dM5+mFl1eRCo3/sD5eTLo/GdGCTofYyPo4s9/4+L8DXwO+WCifZwOHWx9vUBFx9EbaY6BvC2BuvcDvC8SV7rQGZc6/Pgr8eJRfO5JJBq02HTUhFJEVewf5i5d95gFXF4rdlayPs6yPnwa+BXyMtFNgRUWBwawOvB44BTjD+lji9Vk6gPVxNevjkcDpwLGkre+jWeycTtq+/hngdOvj+62PU1qXaVtYH9i17w/Bmfmkf9efF8soFXo+VDB+2xtNYeAFdSSyHL3APUA3VuMks2pFa28gd0O9xcDfgzP3jOaLq+kE1wF3tzSr4RlPakSzTYHYItIGrI+vBY4h7cgq4VHUYyAb6+OOwBmkm6+dWvSwPaQRwl+3Pn7J+rhJix5XuoD1cSvSjevx9LuhbYGXkFbKv2J93KKFj9t06wI79n9HtXvgZKDUEYtpwAesjy8uFL/tjbQwMI50LiynJcCFwZklmeNKd1qJMqvf80lPpmOxgPSiV8IawEGFYotIg1kf9wNOII25KmEB8B9dR+RhfdyD1Cz6jTWFWB04Ajix2hIuslzWxx1IO1feUVOIaaQjqKdZH0uMYi1hIoM/p/8X+HrmXPpbFzjK+rhBwRza1kgLA0vJ/8K+CLggc0zpQtbHiaRmKs/KHLoXuCE48++xPEhw5gngHFIxLbeJwCutj+sWiC0iDWR9nGl9PBb4MlDyBu4R4PyC8buC9bHH+rgnacv/8zOEfBNplVa71WRIVVHgNFKPi7q9nLSjZbcMsZpgbevjpP7vCM4sAALwyyIZJS8DPlIwftsadmGgajy4PrBKfekMqhf4c+aY0p0mAJ8oEPdJ4MwWPdadwLkteqyRWhd4f6HYItIg1Q3iGcCnSTuKSppLmrUt9dqBtDNks4wx9wA+b31cP2NMaRPVcZPTgBdmDLst8EXrY87fg1LWALYa+M7gzEPAccBV2TNKJgHvsz7WtWupY41kx0APqeNjbrODM3cViCtdxPo4ntQ/Y4cC4R+gGvnSAvOBE1v0WCM1GXiH9XGlQvFFpCDr4xTr4+utj98GPKnrd2kLgX8GZx4onUgnsz6uR3rt2bxA+DcAhxeIKw1mfVyd1E8gZ1Ggz3OBo62PuUdI57YSQ4zJDs5cRto9tChnQv2sCRyqIwUjM5LCwHjybwVcClyTOaZ0p4nAhwvEXQD8uN+4lzGpztBeRrmxXBuQRvmIyIotLp3AWFkfV7U+vsj6eBhph8BpwAdIOwybYDbwf6WT6GTWx+mkaRMvL5TCOMBaH99VKL40jPVxKvAe4O2FUhgPvI00prOTrczyj9/+itYtfI3GLpS5tm9bE0bwuT2ki/6clgBXZo4pXcb6OI60yvHqAuHnkLrZttJ8UpX8rBY/7nBMAw4EflEgtkg76QFWri5gJ63okwtbSvrd7usCvwbpYnBjYEPSVtKmnvO+HfhH6SQ63LbABwvnsDLwcevjP4MztxXORcrbmvJjlKeSClbnBWeuK5xLXVYlHSMdVHBmtvXxRNL0gm2zZfW0KaQjBZcGZ84pEL/tjLQwkHtLzGLS6qdInSYC7yRdWOS0CPhjcOa+Vj5ocGaR9fHPpDGf67TysYdhPPB86+PzgzOXZI4t0k5WJq2sv4zmFwZ6SRdYG1V/Xh1Yi5FdQ5QwD/hVcOax0ol0KuvjqqSV2VmlcyHdeLyPNFteupT1cRXSan2J488DbQ18CPhY6URqspQV73z7H+mY0Wmkowe5zQKOsT5eH5z5X4H4bWUkL+qlRhVq7rDUbS1gnwJxFwAn1fTYc4BvU+YCaQpwCPWNBRLpBJNJfU1eUDqRDnYHqTu21GdLoClb+KcAr7E++uDMg6WTkWIMqVjVBBOBF1sfNwjO3FE6mRKCM73Wx1+RXus+VCiNbYGPWh8/HJxp+yN8dRrpuMKRfv5YLQVuzRxTuoj1cQLpTPx6mUMvAf4VnKnlqExw5knSudon6nj8FZgI7Gp9zD32UUSkz0Lgd8GZe0on0qmsj33FrdUKp9LfhkC3zJGXwW1J/t2Sy2OAt5ROoqTgzKPAVym3C7wHeDOwV6H4bWOkUwlWqymPoSwNztybOaZ0l9WAgwvEfZL6pwfcQbk5sjOBgwrFFhG5HvhG6SQ63FrA7qWTGGAmzctJMrE+rgG8onQeA6wMvKga+961gjM3Al8iNYQtYQ3gE9bHZcYrytNGUhgYR/7zOuMzx5MuUo0o3Jn80zZ6gRuAP9Uc50ngmzXHGMoU4J3Wx5mF4otI95oHfCM4ox2H9ZpF847CTAS2qZp6SvdZH3hx6SQGsT6wdukkGuBc4McF428PHKlr06GNdMfA5LoSGcKczPGku0wGPlEg7pPA96vRgrWpHv8K4K91xlmOWcDehWKLSPf6F2WmsnSbGeRv2jscqwKblk5CiphFc0al9rcasEXpJEoLzswlTeIq1Zy670iBrk2HkLtnwEgsBW4snYR0pmpLl6HMlrOHyFcxnQ+cnCnWQNOA9xaKLSLd6T7guOBMif4qXaPqz7PRCj+xjKksZ4SadLSp5F/EHI41UGEAgODMTcBxwP2FUlgJ+LD1ccdC8RutyYWBXuDR0klIx5oCfKRA3AXAT4IzWc5YVbsG/gNckyPeAD3AFtZHNYISkRwWAqcFZy4onUgXmEgzRhQOZjKp14B0kWrBZ/XSeQxhGvqZ7O8C4PSC8bciHSmYUTCHRmpyYQDUY0Dqszrw7gJxHwNOyRxzNvD1zDH7TAeOKhRbRLrL7wFfOoku0cuK55eXshJpOoF0l8nk74U2XEtJ06gEqHZ0nQFcVDCNPWjOWMvGaHphQKTlrI+TgHeSblpzWgT8OfekjeDMIlKjw7tzxq2MB3axPm5ZILaIdI+rgc8EZ+aUTkRERJYvOHM3aUrBA4VSWBn4mPVx11F+fQ8deB/d9L9Qb+kEpCOtQpkRhQuAzxeIC3AP5TrBTgM+Wii2iHS+m4BPBGeuKp1IF+kBJpROYgiPA7eVTkKyWwDcXjqJIYxDu6AHcwFwWsH4GwNHWB/XGsXXLiA913SUphcGJpZOQDqL9XEi8GpgncyhlwD/Dc5cmzlunwXA/5HGeOU2CXiV9fFZBWKLSGd7FDgiOPPH0ol0mUWUW+lbkQWUm5UuhQRneoGHS+cxhCdobm7FBGfmkcZq/7pgGq8A9h/F180B7mptKuU1uTAwDo2bkdabCBxSIO584HMF4gJPvWBeTzpSUMK6wH6FYotIZ5oHHBmc+UXpRLpNcGYxcGvpPIYwnzJH56S8+aTCUNPMQbtYBhWceRA4CbizUArTgA9aH18wwq9bQJnFtlqNpDDQS95fth7yr+pKB7M+jgd2Bp6TOXQvcHNw5vzMcQdaQKrMljAFeKf1MXdfBxHpTHcAHw3OfKt0Il3sEWBu6SQG8SjpeIl0nwcod4O5PHOAG0on0WD/Br5RMP76wNHWx/VG8DXjaO5xqlEbSWFgKfnP7jS14620p0nAYQXizqfcDflTqhWef5KegEt4NvDKQrFFpHP8DzgwOPO90ol0uQeAi0snMcAi4H/BmfmlE5Ei7gQuLJ3EIG4JzjR1h01xwZknge8DvyuYxiuAD4/g8xeiHQPMqSmPoYzXuWRphWq+7WbA7gXCPwScVSDuYBYAJxaKPRU4sFBsEekM5wIHBWd+XzoR4X7gD6WTGOBh0s+IdKHgzEPAX0rnMcATwH9KJ9F0wZn7gWOBUr24JgP7WR9fP5xPDs4spAOPLI20x8DSWrIYWg+wUeaY0pkmAe8g/7afhcDZ1czW4qrRhRcB9xUIPwF4ofVxlwKxRaS9LQROJRUFLiiciwDBmQXAJaQjBU1xN6nTuXSv62jWDdvNwP8rnUQ7CM78BziFcjvG1wI+MYIjBY/WmUwJIz1KEOtKZAjjSec+RMZqTWCfAnHnAF8tEHd5HgF8odhTgEMLxRaR9nQJ4IDDgjO5r0Nk+a4DflI6icqTwHnVqrF0rwj8sHQSlUXA+XreGpFfAj8rGP+5DH936+M0s9nlqI30KMGDdSUyhAnATpljSoepRhTuCWyQOfQi4C/BmXsyx12u6izXjymzyjMReNEoZ8aKSHe5DzgZ+FBw5tvVjidpkODMo6Sjck0YXXgtcEbpJKSs4MxjwDnk74s2mOuB00sn0U6qKQUnkIqOJUwF3m99fNMwPvch0pGqjjHSwsAddSUyhPHA9pljSudZDTi4QNwFwBcLxB2O+ym3yrM6afVPRGQwj5NW/D4cnDk0OHNl6YRkua6m/A35Y8ApwZkm3AxKedeQtqSX9ATwg+BMqRvcdnYlqR9WqWO4awGfsT5uuYLPm0v+RfNajaQwsIT0i5bTOGDrzDGlg1gfxwE7AiZz6CXAZcGZ/2WOO1zzge+Rv28IpOME77Y+zigQW0Sa6w7gTFLh8MPBmV+UTUeGIzgzD/gWZc/2/zQ405Qmv1JYNZXiLNK29FJ+S3o+kxEKzvQCv6DsMaXtgY9ZH5fXm+wB8h+zr9VIdwzcVlMeyzPD+rh6gbjSGSZT5kz7fOBzBeIOS/WkewPw50IpzALeWSi2iDTHAlIX8eNJo6I+FJwJwZm5ZdOSkQjO3E0aB3x9gfC/Ab5SIK40WHDmYeAo4B8Fwv8H+IL6XYxecOYR4CTS7oESeoC3AG9dzuc8QBqf2zGGXRiobiTuIp2bzmkcabakyIhUuwW2AV6dOfQS4D/BmaaNzHmG4MzjwBGkbt+5TQX2rb5HItJdbgPOI/UPOIhUDPhUcOZ3Vad7aU//Jb2m3JAx5h+AT6m5mwwmOHMtaQfSPzOGvZrUKPWqjDE7UnUM43jKTT5ZEzjc+rj5YB8Mziwh/zH7Wo10dNs40paJFZ25aKWJwOuBszPGlM4whbQCVcJ06+ORpIpjU/WSxjiWMI70PPJyyu1aEJH69F3IPVy93QncU/33GuBanQfvLNUC0q+tj0uAzwM71Bzyl8DRwZncx1yljQRnrrA+fgT4BvCCmsP9AzgqOPO3muN0kz8AP2X4kwJabQfgSOvjwcGZOYN8/AFgHjA9Z1J1GWlhYClwBXkLA+OBXa2P46vKjMhwzWT5W4DqMp407uS5BWK3k6mkYx4qDIg0w0NAIF3k9DDya4Q+84Fbqv9/oHq7fYiLKukwwZnfWR9nk3YPvLGGEPNJPQ1OC87cXMPjS4epigMfAo4G3l5DiCdJ5+FPVbPU1grOPGZ9PBXYBdi5QArjSPcSlzD4hIn7SEeonpMzqbqM9EV/MfAvYO8achlKD7AOqRjRUec4pD7Wx0mkJ/+VS+ciQ5oAPN/6uFlw5sbSyYhktgC4nHQDPbGFj7uUVBR91Si+di5wZoObpkqbCM5cbH3cH7gMeAetayR9Pmnc7plaLJKRCM5cVf1M/od0fbhLix76H8CPgB9X4zulxYIzN1gfjyU1zV6zQAorAx+xPv5jkNfHW0j3xl1bGLiojkRWoAd4LSoMyPCtAhxSOglZoWmkVaX3l05EJLO5wLdJq0ytPNKzlDQS9DhgnxF+7TrAGdbHa0m9UiLpGMADwE3AzcGZxS3MVTpYNY/8c9bHv5J2DryC0R0vmA/8Hfgr8HP1E5DRqm7cv2J9/AvwXuB5pN2dI+139CRpBfkvwC90nCWLv5LGoh5VKP62wCetjx/uXwCqdjRcXiinlhtRYSA402t9vIX8ZykmAntZH08MzpQYryZtxPo4kXQBsl7pXGSFJgG7Wx/XCs7cXzoZkYx6gbnVWK35LX7sudbHo4CNgF1H8HWTSWdwB57DvRe4FrjB+ngHqUhwpbZxy3AEZy4ELrQ+9v1sbQlsAqwPrEtadOrTU/35AVJTrxtJR1j/qJ4U0irBmcuAy6yPOwAvAbYj/Uw+G1ib1Gh9Cuka5TFSobTvZ/J60kLlBdrtmE9wZp718XTS9f3zC6XxOuDdpH4V/UXgQcrsZmip0ZwffBK4FHhpi3NZnnGkX9rtSC8QIsszkTIjCmV0ZgD7kTrPinST0Z7hX6HgzB3Wx8NJTZvWH+PDPat665sQ9AjwH+vjZaQL5Mur7t8iQwrOXAxcDGB9NMDGwAYsWxhYRCpG3RKcuTV3ntI9gjNXUN1XWB83I/1MrsfThYGppOe7xaSfyZtVoConOHOn9fF44LvAGgVSWBX4uPXxv8GZf/V7/63Av0mFg7Y2mouSJaTtHDkLA5BWVw4EDsgcV9qI9XE8sBOtOzsm9ZsK7G19PKVaPRWR1vg3qTv8YA2TxmIGaQzsq0njTi+2Pl5UxTu/GoUqMqTqOICOBEhjVKv/2gHQfH8BvgkcUyj+pqQpBR+sjktBakB4MR1QGBjNDPHFpG9KbhOBN1sf236bhtRqEnBY6SRkxDYC3lA6CZFOUvUDCLS+MNDfJNJCwVGknglftz7uZ30c6y4FERGRZwjOzANOA35fMI1Xkna6AhCcWUAqjM8tllGLjLgwUJ3xv5qnZxTnNAPYt0BcaQPWxx5SJe+1pXOREZtKuRm1Ih2rumA5hrTTr26zSK/R3yUVCPa1PqrXi4iItEzVk+oE4J5CKawEHGh97L87+UbKNOhvqdHsGIDUZ+BPrUxkmMYDH7A+rlQgtjRf34jC2s7tSm3GAztaH3csnYhIp6m2Ox5M3q3bbwS+D3zN+vg2vW6LiEgL/ZtlmwDm9GzgGOvjOtWf7wT+WDCflhhtYWAx8LNWJjJMfSvCtkBsab41GPl4LmmOaWjEpEhd/gccSyrs5/Rm0uzpr1gfX5I5toiIdKCqJ9V3gXMLpvFqqt531Y76S0gFgrY1qsJAcGYJcCH5LzD6fMz6OLVQbGmgakTh64ENC6ciozcReJnOJou0XvW6fTapaVNuKwMfAs6wPh7Rb4VFRERkVIIz95EK3jcUSmEyaSf7q6s//w/4eaFcWmK0OwYg9Rj4c6sSGYG+XQNaWZT+VkE/E51gDcCVTkKkEwVnFgJfpNx2x82BLwGnWB9fWSgHERHpEMGZS4BTeObY05zWAY6wPq5TTeT5GzCvUC5jNpbCwBLgzBblMRqHWx+3KhhfGqIaUfgCYLPSuciYTQbeZH1ctXQiIp0oOPMQqYh6TcE03k7aPbBPtdtLRERktH5RvZXyAuCD1f9fApxXMJcxGXVhoN9xgvtbl86IrAIcVyi2NMtk4NDSSUjLrAO8o3QSIp0qOHMNaVLBowXT2Aj4DvAZHS0QEZHRqqYUfAm4qVAKU4H9rY97VMcbfkqb7hoYy44BgNnA/7UikVF6nfVRNxBdzPo4DtgK2K1wKtI604D9qvGTIlKP3wG+cA6TgaOAL1sfNy+ci4iItK/LgROB+YXirwMcZ300pPHAbblrYKyFgaWkcUSlTCZdUGxRMAcpazKpqZV0jr5iz0tLJyLSqap+AydRZsLQQPsA3vq4W+lERESk/QRneoFzKPuathPw0erI3g9pw10DY5r3HpxZan28ktRoodRF/IbAydbHtwRnSk1JaDTr406knhC5PRmcqbtTqLadd6ZppOMhFxTOQ6RjBWcesT4eAWxCuqAp6ZXABtbHA4IzFxTORURE2kxwZrb18URgZ9ICU249wDusj+eSdgz8kTSyt22MqTBQGQd8mbKre3sAnwI+XTCHRrI+HgzsDSzKHHoh8ANqHCFifZwMvI00Cks6ywRgV+vjJsGZm0snI9KpgjO3Wh8/BZwFrFk4nc2A062P+wdn/l44FxERaTPBmautj8eTjsqVaGS9FvAZ0tGG04BXkPritYUxFwaCM0usj38jzW7cZuwpjdox1sebgjNnFcyhUayPbwFOLhR+CfCRmmOsDBxYcwwpZxpwOHBA6UREOtz5wAnAV0onwtPFgQ8FZ/5WOhkREWk7vwFeAuxfKP4uPL1gfRb13w+1zFh7DPR5Evhsix5rLE6xPr61dBJNUJ3V/Fqh8EuB3wZnrq0rgPVxAmmXyrPriiHFTQb2sD7OKp2ISCcLziwirWz8uHQulS1IPQe2K52IiIi0l+DMo8CpwJWFUugB3ks6IvcjyjVEHLGWFAaCM0tJHY7/14rHG4OZwLetj68tnEdR1cXUV4F1C6XwOHBszTEmAUfXHEPKWx3Yt3QSIp0uODMfOJg0g7kJtiH1D9qydCIiItJeqrG8nwUeLpTCKoAj9e+5u1AOI9aqHQOQzpR/toWPN1ozSNsQX1M6kRKsj9uQOk3vUCiFXuCvwZnL6wpgfRwPbE+5v6PkMw3Y2/o4tXQiIp0uOPMAcBjNuYh5BXCs9XGl0omIiEjb+Qvw3YLxX0A6Ets2r2EtKwz02zVwWasecwzWA75bnbHvGtbHl5N6CryyYBqzgeNqjjGJ1LFeusMmwO6lkxDpEpcAXyydRD97knYyiIiIDFtwZi7wTeDSQilMBDYA1i4Uf8RaMZWgvwWkG7a/tvhxR2Nd4DvWR4Iz/690MnWzPr4BOJHUuKmUpcDZwZn/1hXA+thDGlG5Z10xpHGmAR8GflE6EZFOF5xZbH38HrAj8IHS+ZB6jRxpfbwqOPOr0slIe7A+rk1aJFqVtFq3tPpQD+la9T7goeBMU3bHyApYH/tusNYg3b/0Vh8aR5oXfwfwYHDmkTIZShMFZ26rphR8m3TkXJajpYWB4EwvcIH18RzSGLnSZgDftz5uDpwWnHmsdEKtVjXhc6SCzHqF07mHNLqyTpMAS6rC5fYoML5A3CaZSv5/g/HALtbH5wZn/p05tkjXCc48aX08EjDAboXTgVQcPNH6eGtw5qrSyUgzWR/XJZ3n3bL676akm8jVSJOSIN1EPgHcDtxtfbwKuBr4t4oEzVMdj90a2I7Ud2RD4Fmka8G+Ys940vXZ9aTv6f94+ns6J3PK0kx/As4AjiydSNO1esdA34ru4aTt7Ku1+vFHYRXStsgNrI/fCM5cXTqhVqmqpwcBnyidC6ly+63gzO01xynRjG4J6UXG092FgR5S8alE08fppLPPby8QW6TrBGcetj4eApwDbFw6H1KR4svWxw/oBk76sz5uCLwaeA3wMtKi0PKsSrq5BHgrqWHyedbHC4BzgzOxnkxluKyPu5C+p7sDz2PFi0GrAOv3+/M9pO/puaS+Vw/Wkqi0heDMXOvj14CdKXvcuvFaXhiodg3can38PGlre1N8CNiq+sH4TXBmYemExsL6+EbSyvmbS+dCKgpcThoNUptqd8QewFp1xhnEk8BntY0VrI/jgFeRXqhzmgA8z/q4rm4KRLK5itQz5lukLf2lvQo4Avho6USkPOvjROD1pMWCsRwvXIlUIHgrcK718TvAn6uRZ5KR9XEN4F2k7+mOY3iodYD3AfsAP7U+nhmcOX/sGUq7Cs7ca338EmnnSduc+c+tlVMJBvoqzeg10N9LSN0pv2h93Ll0MqNhfdzU+ngM8D2aURSAdF7vyODM4zXHWYX8TQd7gVtJjTUlPWecUCj2mqReAyKSQXBmCfAT4PTSuVTGA++3Pr63dCJSVnVs4NOkn81W9hzaHfgx8Fnr4yYtfFxZAevjjqR7h1MZW1Ggv4nAe4AzrY8HWR91xry7XUwqdMsQaisMVFMKDgLm1BVjlFYl3Vyebn38gPVx09IJDYf1cXXr416k7eyfo1kNNM4KzvypzgDViMLnkc4O5rSA9PdbnDluI1X/DpcAtxQIPwV4u/VxVoHYIl0pOLMAOBb4felcKtOAL1kfdy2diJRhfTSkm8ejSQXjVpsEfBz4mvUx9+64rmR9fBXphm2fmkKsD3yNVPB5dk0xpOGCM08A3wG0e2QIde4YIDhzDfD5OmOMwU6kDpXe+vjBphYIrI8zrY9vJ40h/D7pzFWTXAd8MkOcUiMKHwLOLBC3yR6i5mMjy7EusFeh2CJdKTgzm/Q8f33pXCrPAk6pzpZLF6lW8U8mbfuv22tJi0gqDtTE+thjfdydtFPguRlCHgR8Xs8d3as6jvoZ4ObSuTRRrYWByleBczPEGa1Xk7aieevjAVXDk+Ksj5tYH99PegEMwHtJHeGbZCHwqeDMw3UGqc61bw68os44g1gI/CI480DmuI1W9ef4A1Cimc8UYK+qyamI5HM1aYV2bulEKjsCx1gfJ5VORPKwPq5FuqZ8Q8aw25OKUE1owNmJdib1I9s6Y8x9gKOsj6tmjCnN8g/Sc8mSFX1it6m9MFAdKfgQ6aKiyV5N2sZ0hvXxOOvjO6yPm+VMwPq4ofVx92pM1NdI210szSsI9DkjOPPLDHEmkn6GcnuUZjXQbJK7SAWr3MaRGse8qEBska5VNRb+DXBK4VT6jAf2BvYrnYjUz/q4EvAp8hYF+uxCKkKtaNqBjEDVJ+I48hYF+rwL+ECBuNIA1evZ/yO9pkk/LZ9KMJjgzO3Wx48CPyV/R/mR2qF66wX+Yn38F6mocStwB3B/9QM1ZlW1csPqbSvghaRz9HWcmWu1C0hjKXNYB3hnplh9FgMXBmfuyBy3LQRn5lsffwQ40ip+TtNIowsvzBxXpKsFZxZaH78IbAu8qXA6kIrmn7U+XhOc0fNBh6omEr2OctMoxpOuQa4m7eKUMbI+TgcOII2YLGEacIj18R/BmUsK5SAFVVMKjge2oxkjeRshS2EAIDhzgfXxc6Tmee2wDbiHNOuyb97l1cC1wC3WxzuAe0kryn3bzO8jNaob+HcbRyqGTCbdQK0NrEY6K70J6QJrW9Kc9nZxJ3BocGZ+3YGqbaJvITWNzGkh5brvt4ubSUcKck/HmAi82Pq4WXDmxsyxRbpacOZJ6+OhPP36VdpapCZxe+n5oGNtBHyicA5TSBMxfh2ciYVz6QTPAfYvnMM6wBHWx/dkmKolzXQpaWfwyeRf5GqkbIWByjdJq+OHZY7bCn038H2eIBUF7iDtLrgFmM/ghYGNSSsbK1X/v0rdydboYeCo4MxlmeKtBHwkU6w+S4GrgzP/yhy33TwBnEaZsZlTSF2jNb5QJLPgzC3Wx0+SjhOtXjof0jnwY62PHwzONKUHgrSA9XEisBvpLHpphvS64wrn0dasj6uQdmA0YZb8i0nHU35SOhHJLziz1Pr4M2BX4N2l82mCHM0HnxKc6Q3OHA78KmfcmkwjFTleArwUeB/pJuXAAW8HAK8inYnegfYuCvQCJwRnzsoRrNo++GLSakFOC4CvZI7ZdqoZ5/+u3nKbArze+tiEmxKRbvQnmvM82UM62nBA4Tyk9dajOWfBJwGvVEf7MduR5kwXWh3Y2/qo1eIuFZx5iPRadkPpXJoga2Ggn/cBvy4UW0bvVPI245tE6oKdUy+pn4R+PodnPuWOXKyObgREiqimk3wNyFIoHoYppG3BJZrTSX22Jc8Yu+FaD60sjpr1cSppwWdm6Vz62QZ4fukkpJzgzJXAF4HHSudSWpHCQHDmEWBfdPPVTn4VnDm4mjJRu2pE4dbk3z64EDgrOLMoc9y2FJxZDFxCKqbkNg2wqvSLlFH1mTkS+G/pXCprACdaH7cpnYiMnfVxZZo3gWY68HyNzB219SjXcHAo65Imk0l3+w1wTukkSiu1Y0DFgfbyW+CgzDEnk3+3AKQeCmcWiNvOHiStHJawFs27yBDpGsGZe4BDSQ15m2Az4HjrY5NWJGV0ngW8rHQSg9gQ2KB0Em1qFmmFvkkmAdtYHyeXTkTKqe5LTwH+VziVoooVBkDFgTbxW+DA4MyduQJWlfgNgT1zxawsAn4ZnLkvc9y2Vm0p/j3wUIHwK6EGhCKl/RM4ntSfpQleTfku9jJ2M0mjnJtmBs1ohtiO1iNN5mqadao36WLBmauBzwKzC6dSTNHCAKg40HB9RYG7MsedBOyTOSaks0VNaabVbu6kzE6L8cDzrI/PKRBbRIDq6NUZwPdL51KZBHzc+qiz4O1tOunIWNOsTBrXKSNQNZTesHQeQ5hOOlIg8iea81qWXfHCADyjOND1Zzsa5HfAhwsUBSBV49+XOeZi4KLgzG2Z43aE6qzxj0g9GnKbDhxeIK6IVIIzC0grLf8snEqfqcCXrI87lk5ERi1LT6NRmASsWjqJNjSJ5k7mmoy+pwIEZx4DvgFcUTiVIhpRGICnigPvAk4GNIe4rJ+Q+fhAn2pm8RtJZwtz0ojCsYvALwvEnUBqBpX7Z0ZE+gnO3A98DLijdC6V9YCTrI9NmJcuI1CtLq9XOo8h9AJLSifRhpr879bk3CSz4MwtwBeAR0rnkltjCgOQtiMGZw4FjgHuLp1PF1oMfB3Yr0RRoLIKcETmmEuBa4Iz/8gct9M8QWrcUsIs1GtApAmuAI6lOQX+FwGftD5OKp2IjMg40pZ9EZES/gh8p3QSuTWqMNAnOHMqcAhwcelcusiDwKeDMx8NzjxZIgHr43hSQ5+NModeAJyYOWbHqUZZXkuZ0WVTgHdYH9csEFtEKtUI0x+Seg40wUTgg6TjitImqqa215TOYwg9NPT6ueGa/u+mEZTylOpIwanAX0vnklNjf0GDM2cD7yf1HShxbrmbXA0cHpw5vnAeE0kFoZx6gduAX2WO26nmkVYLS1gXeHuh2CJSqW7qTiCtuDTBFOBY6+PzSyciIzKhdAJDWEzaIScj0+R/Nx0lkGUEZ+4mTdx5oHQuuTS2MAAQnLkO2Bv4HHBL4XQ61W8AF5w5s2QS1sdxwLakMVM5LQR+WF3IyhhVq4UXArcXCD8VeGc17lJECgrOPAB8ktR7pAnWBr5ufTSlE5Fhm08zF4bmAreWTqLdVNdZJRpaD8c8QKOqZTD/BE4vnUQuTa3GPqW60fiC9fEKYH9gD1JnUxmbu0ld5L8cnGnCvM7JgCsQdzZdPJakJvNJq4WnZY47DtgOeCGgfhEi5V0OHE3q8DyzcC4AzyHtHDggOPN46WRkhR4BbgS2KZ3IALNpSMfyqnfGOqTfr1k8verdQ1qhnwPMbtDEpXtJeTXt/uMh4KbSSUjzBGfmWR+/DbwUeEnpfOrWtF/MIQVnfmd9PJc0luwdwA5lM2prvwdCdVyjKdYCXp855iLgV8GZezPH7WjBmQXWx18Dx5H/ZmAa8AlUGBApLjjTa338f8CmpOeD0nqAtwD/oVyjVBm++4G/0bzCwIPADaWCV7vidgS2Iu203ALYANiYdF0DqVC+gHQjfqf18VJSz4ZrgjPFcq/yuY6Ud1MsBm6oxi6LLCM4c6f18TOkhcQNC6dTq0YfJRgoOLOkOge/P3AWmlwwUteRRvK9t0lFgWpE4ZvJfxP5GGllW1pvNvCtAnEnArtZHzctEFtEBgjOLCLdhP++cCp9pgBHWB9fUToRWb5qN+MFpfMYYAFwedVsNyvr4zjr44uBzwDfJl0HHw7sSVosWwVYvXqbQTo+s2P18c8BPwe+YX08zPq4U+78K7cDfy4UeygP0rycpHn+RmpG2NG9KNqqMNAnOHNpcOa9wKHAr0lbgGRos4GzgQ8HZw4PzjxcOqEB1iD/qLnFwD+DMzonWIPgzBPAmZQ5HzoFOKhAXBEZRLVt/2BScboJ1gZOsD5uUToRWaFrgFLjkwdzFxByB7U+bk0qCITqv6O9sX85aUHk29bHj1ofN2hRisMSnJlLKvY06SjPtWiXoaxAcKaX1BD/3NK51KktCwN9gjP/R1ppPgIVCAbzCPBb4IjgzF7BmQsK57MM6+ME0rmd3A2hFqDdAnW7n/R7mdsU4I3WxyacaRYRIDhzI2l18/7SuVR2Ao63Ps4onYgs1x2k1fEm6FtQuDJXwGqXwBtJO/A+TevGOe9EWv08xfr4whY95nD9Czgvc8yhPAmcF5xpyvOSNFhw5i7gi5RpsJ1FWxcGIM1OD858DxUI+usrCBwJ7BWc+U7hfJZnEvCxzDGXAtcGZy7KHLfbPA58tVDsNUhHjkSkOc6lWQXZPYCPlk5ChhacmUe6rmvC7r7bAZ8rWLVwsh/wHeBFNYV5M/AD6+Nra3r8ZVQ34T+hGaMLLwd+WToJaSuXACeRikodp+0LA30GKRCcTfeNOLwd+B1PFwTOqLZ0N1I1onArIPds6QWkX2qpUXUG8xrSC29u04D3VR2bRaQBqilDp5NuCppgMnCI9fE1pROR5boO+HLhHBYCPwvO/DtHsKr30v7AyaRCd502Ac6wPu5ec5z+LiBtyy7pMeCbwRlNI5Bhq65t/48yO2Jr1zGFgT59BYLgzF6kc8ankKo7DxZNrD69pA7L3yetvDe+INDPZOBTmWP2ArcBv8gct1vNAz5bKPazSE2XRKQhqhXgw2jIuDdSw7avWR+3K52IDC44s5B0E1nydfsCMu0WqAra7yUVQ1bOERNYF/hOriJZ1evqROD6HPEGsRg4KzhzVqH40saCMw+Qfj9j6VxareMKA/0FZ34fnDkYsKRV9LNIFyOPlcyrRW4CfkUaAbVfcGa/4Myvqouuxqt2C2xO2uGRUy/wo+pCQ2pWrRBeSGrYlNsqpN1DTddDKpLllDte0/WQjjXlNAUYnzlmIwRn7iY1IyzxvDCYzQBfYyO23KOhO+5nq7qR/ARldqBdD3yh+rmtVTWK8GXAF8hXFOizLnBarqacwZmrSa/RJSaMnUsqTHSa3L/3U8j//NYIwZnLgOPJeyRmMjXfu3fFN7NqenQj8D3r43OAFwDbk2bjrkd6Muwpl+GwPArcTLqQugr4e3DmT2VTGpMJpO/BzeQd/TGbtLtC8plPKmAdQarS59IDLLU+rpvjgm4MFpJmYi8gFa7q1kMqLMrTFpOOYkVSD5K69QAPA3MyxGqqC0nN1I4gXejk+NkfSg9pxNvrgG+2+LF7STsWbyHP818PcB/pmqGjBGdusT7uT2pGuGOmsLcBRwdn/p4p3sbAUcBameINtAlwnPXxA8GZHD9DvyH97h1HuhbP4c/AMcGZ2zLFy2kO6Wc2x+JXD+mmuFN3ZA/HL0nPRa8DFtUcaxzpGqXWiR5dURjoLzjzX+C/ANWs8+2rt81JRYJZpCenKaVyrDxE+mW7k1QM+C/wT+CqEvNza7CUVPn/MPkKAz3A/ODMPZniCRCcedL6GEg/xwsyhu4hXYiX/l1ekUdIxy2mk+emdBwwN0OcdjKXNF7zz+S7eVtAFxdogjNLrI9nkgoypQsDkHaM1LHyswj4E3APeZ7/xpGKsTdkiJVdcOa/VXHgdOA5NYe7BvhscObnNccBwPo4BXg78OIc8ZbjNcC7aH2RbBnVCLjvWx8BjgXWrznkH4BP5pwskdmlpIaqOVax+66xmtAYtIjgzGzr43GkKRvzaw43gVTwvbHOID29vaVfi5vD+mhIY/O2J1Vt1wZWJRUKJpEawPQAU1sU8nHSxdDdpAuGB0jFgNtJF4w3A5dXc19FREREup71cVvShIvX0Podn0tJRcLjc455tj7uQGqcvWmumMvxL2DP6ix1FtbHd5B2EO1Uw8PPA34KfFnNBkWGpsLAClgf1wa2I63mbUyqxm9TfXgqqVgw3H/EpaRVA0hVtquqr72S9KR1U6atWyIiIiJty/q4Kql/1OuAbVv0sP8jbW//TnAm22Qr6+Nk0g7Kk3PFXIHHgKOCM9nGMwJUTUAPAXYDnt2ih72I1Ljy1OBMzqOrIm1HhYExsj7OYvjbfxcHZ+bUmI6IiIhI17A+Pp+0fXob0gjk0TRguxb4O6lT/T9bmN6wWB83A34E7Jw79nL8ljTpKvuUK+vjm4C9gOcBG43iIZ4kNRu/EDgtOHN7y5IT6WAqDIiIiIhIW7M+Pg/Yg9QMbF1SA7++I6B9k1jmknZ+ziM1abwDuA74dXDmotw597E+vhb4Xan4Q7gZ2Cc4c0mpBKyPryftCNkEWAdYkzStYSJP90mbS9p9O4f0Pb2d1JfrZzl3fYh0AhUGRERERKRjVD0ItiAdAe0BNiDtJLi2+u9DpILApVUDvGKsjxNI4ztPKJnHIOYAnw7OfL10ItbHlUjHeg2p4DO1+v+5pGZsS0nNuq8LznRk402RHLpuKoGIiIiIdK7gzNXA1aXzGKYZpMlYTbMa+cZCLldw5nHSZK7sxzxEusm40gmIiIiIiHSpGaTdDU20XukERCQfFQZERERERMpYmdZ14G+1qdbHKaWTEJE8VBgQERERESljPKmZXhNNBlYvnYSI5KHCgIiIiIhIGU3vAt70/ESkRVQYEBEREREpoxdYUjqJISwGniidhIjkocKAiIiIiEgZTwD3lU5iCPOCM3NKJyEieagwICIiIiJSxqNALJ3EEB4snYCI5KPCgIiIiIhIGY8Ct5ROYhDzgetLJyEi+agwICIiIiJSQHDmceCy0nkM4kHg8tJJiEg+KgyIiIiIiJRzC83btn87cFHpJEQkHxUGRERERETKuQU4u3QS/SwE/h2ceaR0IiKSjwoDIiIiIiKFVDfgfyCd62+CW4Afl05CRPJSYUBEREREpKx/A+eUTgJYBPwhONPEvgciUiMVBkRERERECgrOPAicCjxQOJXLgNML5yAiBagwICIiIiJS3vXAiZQ7UvAQcEpw5oZC8UWkIBUGREREREQKC87MA86gTCPCRcC3gzM/LRBbRBpAhQERERERkQYIzjwKHAucnzHsEuAs4KSMMUWkYXp6e3tL5yAiIiIiIhXr4/qk3QMvAybXGGoecCZwdHBmTo1xRKThVBgQEREREWkY6+NqwDHAe4A1awhxB/Ct4MzxNTy2iLQZFQZERERERBrK+rg/sB+wEzCpBQ85D/gHqSjwixY8noh0ABUGREREREQazPq4DvAR0tGCbYCVR/EwDwLXAb8nFQUebV2GItLuVBgQEREREWkD1sdZgAVeAqwHzCIVCaYCE/p96gLgSeBh0hjC24A/Av8vOPNIxpRFpE2oMCAiIiIi0masj1sCOwDrAqsDGwMTgSeAW4DZwPXAtcGZOwqlKSJtQoUBERERERERkS42rnQCIiIiIiIiIlKOCgMiIiIiIiIiXUyFAREREREREZEupsKAiIiIiIiISBdTYUBERERERESki6kwICIiIiIiItLFVBgQERERERER6WIqDIiIiIiIiIh0MRUGRERERERERLrY/wdltUe/ZFMdOwAAAABJRU5ErkJggg==" alt="Catrion logo">
+    <p>Today's menu, made easy — pick a day below</p>
+  </div>
+</header>
+
+<nav class="days">
+  <div class="scroller" id="dayNav"></div>
+</nav>
+
+<main class="wrap">
+
+  <!-- SUN -->
+  <section class="day-content" data-day="0" id="content-0">
+    <div class="day-label"><h2>Sunday</h2></div>
+    <div class="category"><h3>Soup</h3><ul class="items">
+      <li><span class="name">Harira Soup</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Salad</h3><ul class="items">
+      <li><span class="name">Greek Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Oriental Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Green Salad</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Main Course</h3><ul class="items">
+      <li><span class="name">Chicken Kabsa</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Crispy Chicken Wrap w/Fries</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Fish Fried</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Pasta Bechamel Beef</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Chicken Shishtawook</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Roll w/Fries</span><span class="price">14 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Side Dishes</h3><ul class="items">
+      <li><span class="name">Veg Salona</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Sauteed Vegetable</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Steamed Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Kabsa Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Vegetable Rice</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="combo">
+      <h3>Combo Meal</h3>
+      <p>Soup (1), Salad (1), Main Course (1), Side Dish (2) &amp; Dessert of the day (1)</p>
+      <div class="combo-price">20 SAR</div>
+    </div>
+  </section>
+
+  <!-- MON -->
+  <section class="day-content" data-day="1" id="content-1">
+    <div class="day-label"><h2>Monday</h2></div>
+    <div class="category"><h3>Soup</h3><ul class="items">
+      <li><span class="name">Broccoli Soup</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Salad</h3><ul class="items">
+      <li><span class="name">Italian Pasta Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Mixed Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Green Salad</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Main Course</h3><ul class="items">
+      <li><span class="name">Roasted Chicken</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Strip Wrap w/Fries</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Penne with Pesto Sauce (Veg)</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Fish Tagine</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Tandoori</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Shawarma w/Fries</span><span class="price">14 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Side Dishes</h3><ul class="items">
+      <li><span class="name">Molokhia</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Sauteed Vegetable</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Dal</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Steamed Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Kabuli Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Vermicelli Rice</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="combo">
+      <h3>Combo Meal</h3>
+      <p>Soup or Salad, Main Course, Side Dish &amp; Dessert of the day</p>
+      <div class="combo-price">20 SAR</div>
+    </div>
+  </section>
+
+  <!-- TUE -->
+  <section class="day-content" data-day="2" id="content-2">
+    <div class="day-label"><h2>Tuesday</h2></div>
+    <div class="category"><h3>Soup</h3><ul class="items">
+      <li><span class="name">Lentil Soup</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Salad</h3><ul class="items">
+      <li><span class="name">Corn Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Tabouleh</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Green Salad</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Main Course</h3><ul class="items">
+      <li><span class="name">Grilled Chicken</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Musakhan Chicken w/Fries</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Beef Lasagna</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Grilled Fish w/ Herb Sauce</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Tandoori</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Shawarma w/Fries</span><span class="price">14 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Side Dishes</h3><ul class="items">
+      <li><span class="name">Okra Salona</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Sauteed Vegetable</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Dal</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Steamed Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Saffron Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Mandi Rice</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="combo">
+      <h3>Combo Meal</h3>
+      <p>Soup or Salad, Main Course, Side Dish &amp; Dessert of the day</p>
+      <div class="combo-price">20 SAR</div>
+    </div>
+  </section>
+
+  <!-- WED -->
+  <section class="day-content" data-day="3" id="content-3">
+    <div class="day-label"><h2>Wednesday</h2></div>
+    <div class="category"><h3>Soup</h3><ul class="items">
+      <li><span class="name">Tomato Soup w/ Basil</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Salad</h3><ul class="items">
+      <li><span class="name">Hummus</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Oriental Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Green Salad</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Main Course</h3><ul class="items">
+      <li><span class="name">Chicken Kabsa</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Grill Chicken Burger w/Fries</span><span class="price">16 SAR</span></li>
+      <li><span class="name">Pasta Arrabiata</span><span class="price">10 SAR</span></li>
+      <li><span class="name">Beef Mushroom</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Fish Sayadia</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Beef Fajita w/Fries</span><span class="price">14 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Side Dishes</h3><ul class="items">
+      <li><span class="name">Marrow Salona</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Sauteed Vegetable</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Dal</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Steamed Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Kabsa Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Sayadia Rice</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="combo">
+      <h3>Combo Meal</h3>
+      <p>Soup or Salad, Main Course, Side Dish &amp; Dessert of the day</p>
+      <div class="combo-price">20 SAR</div>
+    </div>
+  </section>
+
+  <!-- THU -->
+  <section class="day-content" data-day="4" id="content-4">
+    <div class="day-label"><h2>Thursday</h2></div>
+    <div class="category"><h3>Soup</h3><ul class="items">
+      <li><span class="name">Oats Soup</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Salad</h3><ul class="items">
+      <li><span class="name">Hummus</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Raita Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Green Salad</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Main Course</h3><ul class="items">
+      <li><span class="name">Chicken Biryani w/Rice</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Chicken Fajita Wrap w/Fries</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Chicken Bechamel</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Fish Harara</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Spaghetti Bolognese</span><span class="price">10 SAR</span></li>
+      <li><span class="name">Tandoori Wrap w/Fries</span><span class="price">14 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Side Dishes</h3><ul class="items">
+      <li><span class="name">Molokhia</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Sauteed Vegetable</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Dal</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Steamed Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Veg Rice</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="combo">
+      <h3>Combo Meal</h3>
+      <p>Soup or Salad, Main Course, Side Dish &amp; Dessert of the day</p>
+      <div class="combo-price">20 SAR</div>
+    </div>
+  </section>
+
+  <!-- FRI -->
+  <section class="day-content" data-day="5" id="content-5">
+    <div class="day-label"><h2>Friday</h2></div>
+    <div class="category"><h3>Soup</h3><ul class="items">
+      <li><span class="name">Broccoli Soup</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Salad</h3><ul class="items">
+      <li><span class="name">Fattoush Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Green Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Hummus</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Main Course</h3><ul class="items">
+      <li><span class="name">Chicken Piccata</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Beef Curry</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Lamb Tagine</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Bukhari</span><span class="price">14 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Side Dishes</h3><ul class="items">
+      <li><span class="name">Vegetable Salona</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Steamed Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Green Beans Salona</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Vermicelli Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Rice Bukhari</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="combo">
+      <h3>Combo Meal</h3>
+      <p>Soup or Salad, Main Course, Side Dish &amp; Dessert of the day</p>
+      <div class="combo-price">20 SAR</div>
+    </div>
+  </section>
+
+  <!-- SAT -->
+  <section class="day-content" data-day="6" id="content-6">
+    <div class="day-label"><h2>Saturday</h2></div>
+    <div class="category"><h3>Soup</h3><ul class="items">
+      <li><span class="name">Lentil Soup</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Salad</h3><ul class="items">
+      <li><span class="name">Quinoa Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Oriental Salad</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Mix Green Salad</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Main Course</h3><ul class="items">
+      <li><span class="name">Chicken Fajita Wrap w/Fries</span><span class="price">14 SAR</span></li>
+      <li><span class="name">Chicken Fajita</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Grilled Fish w/ Lemon Butter Sauce</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Curry</span><span class="price">8 SAR</span></li>
+      <li><span class="name">Chicken Kofta Sandwich</span><span class="price">14 SAR</span></li>
+    </ul></div>
+    <div class="category"><h3>Side Dishes</h3><ul class="items">
+      <li><span class="name">Okra Salona</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Steamed Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Sauteed Vegetable</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Vegetable Fried Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Saffron Rice</span><span class="price">4 SAR</span></li>
+      <li><span class="name">Dal</span><span class="price">4 SAR</span></li>
+    </ul></div>
+    <div class="combo">
+      <h3>Combo Meal</h3>
+      <p>Soup or Salad, Main Course, Side Dish &amp; Dessert of the day</p>
+      <div class="combo-price">20 SAR</div>
+    </div>
+  </section>
+
+  <!-- EVERYDAY -->
+  <div class="everyday">
+    <div class="wrap-title">Available every day</div>
+    <p class="sub">Breakfast, drinks, and desserts — not tied to any one day.</p>
+
+    <div class="grid2">
+      <div>
+        <div class="category" style="margin-top:0;"><h3>Breakfast — Main</h3><ul class="items">
+          <li><span class="name">Omelet</span><span class="price">5 SAR</span></li>
+          <li><span class="name">Boiled Egg (1pc)</span><span class="price">2 SAR</span></li>
+          <li><span class="name">Foul w/Bread (1pc)</span><span class="price">5 SAR</span></li>
+        </ul></div>
+
+        <div class="category"><h3>Breakfast — Sides</h3><ul class="items">
+          <li><span class="name">French Toast (3pc)</span><span class="price">2 SAR</span></li>
+          <li><span class="name">Hash Brown (2pc)</span><span class="price">3 SAR</span></li>
+          <li><span class="name">Spring Rolls (1pc)</span><span class="price">2 SAR</span></li>
+          <li><span class="name">Falafel (1pc)</span><span class="price">1 SAR</span></li>
+          <li><span class="name">Sausage (1pc)</span><span class="price">2 SAR</span></li>
+          <li><span class="name">Fried Rice</span><span class="price">8 SAR</span></li>
+          <li><span class="name">French Fries</span><span class="price">6 SAR</span></li>
+          <li><span class="name">Bread (Arabic / Slice, 2pc)</span><span class="price">1 SAR</span></li>
+        </ul></div>
+      </div>
+
+      <div>
+        <div class="category" style="margin-top:0;"><h3>Beverages</h3><ul class="items">
+          <li><span class="name">Soft Drinks</span><span class="price">4 SAR</span></li>
+          <li><span class="name">Water Berain</span><span class="price">1 SAR</span></li>
+          <li><span class="name">Still Water</span><span class="price">5 SAR</span></li>
+          <li><span class="name">Sparkling Water</span><span class="price">5 SAR</span></li>
+        </ul></div>
+
+        <div class="category"><h3>Dairy</h3><ul class="items">
+          <li><span class="name">Milk</span><span class="price">3 SAR</span></li>
+          <li><span class="name">Yoghurt</span><span class="price">3 SAR</span></li>
+          <li><span class="name">Laban</span><span class="price">3 SAR</span></li>
+          <li><span class="name">Cheese Portion Triangle</span><span class="price">1 SAR</span></li>
+        </ul></div>
+
+        <div class="category"><h3>Tea &amp; Coffee</h3><ul class="items">
+          <li><span class="name">Tea Bag — Green</span><span class="price">3 SAR</span></li>
+          <li><span class="name">Tea — Lipton</span><span class="price">2 SAR</span></li>
+          <li><span class="name">Nescafe Coffee Sachet</span><span class="price">3 SAR</span></li>
+          <li><span class="name">Espresso</span><span class="price">5 SAR</span></li>
+          <li><span class="name">Americano</span><span class="price">5 SAR</span></li>
+        </ul></div>
+
+        <div class="category"><h3>Ice Cream &amp; Smoothies</h3><ul class="items">
+          <li><span class="name">Baboo Cups</span><span class="price">3 SAR</span></li>
+          <li><span class="name">Sandwich Classic</span><span class="price">4 SAR</span></li>
+          <li><span class="name">Lemon &amp; Mint</span><span class="price">4 SAR</span></li>
+          <li><span class="name">Stick Sensation</span><span class="price">7 SAR</span></li>
+          <li><span class="name">Smoothies</span><span class="price">15 SAR</span></li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p><span class="vat">✨</span> All prices are inclusive of VAT <span class="vat">✨</span></p>
+  </footer>
+
+</main>
+
+<script>
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const dayFull  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const nav = document.getElementById('dayNav');
+  const today = new Date().getDay(); // 0 = Sunday
+
+  dayNames.forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.dataset.day = i;
+    if (i === today) btn.classList.add('is-today');
+    btn.innerHTML = label + '<span class="today-dot"></span>';
+    btn.addEventListener('click', () => selectDay(i));
+    nav.appendChild(btn);
+  });
+
+  function selectDay(i){
+    document.querySelectorAll('nav.days button').forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.day) === i);
+    });
+    document.querySelectorAll('section.day-content').forEach(s => {
+      s.classList.toggle('active', Number(s.dataset.day) === i);
+    });
+  }
+
+  selectDay(today);
+</script>
+
+</body>
+</html>
